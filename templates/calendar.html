@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Calendario{% endblock %}
+
+{% block extra_css %}
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+<style>
+    .fc {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+    
+    .fc-event {
+        border-radius: 6px;
+        border: none !important;
+        padding: 4px 8px;
+        cursor: pointer;
+    }
+    
+    .fc-event-title {
+        font-weight: 500;
+    }
+    
+    .fc .fc-button-primary {
+        background-color: var(--primary-teal) !important;
+        border-color: var(--primary-teal) !important;
+    }
+    
+    .fc .fc-button-primary:hover {
+        background-color: var(--secondary-teal) !important;
+        border-color: var(--secondary-teal) !important;
+    }
+    
+    .fc .fc-button-primary:disabled {
+        background-color: #ccc !important;
+        border-color: #ccc !important;
+    }
+    
+    .fc-daygrid-day-number {
+        color: var(--text-dark);
+        font-weight: 500;
+    }
+    
+    .fc-col-header-cell-cushion {
+        color: var(--dark-teal);
+        font-weight: 600;
+    }
+    
+    .platform-legend {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4 fade-in">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-6 fw-bold text-dark mb-2">
+                        <i class="bi bi-calendar3 text-primary"></i> Calendario Post
+                    </h1>
+                    <p class="text-muted">Visualizza e pianifica i post programmati</p>
+                </div>
+                <div>
+                    <a href="/post/create" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Nuovo Post
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Legend -->
+    <div class="row mb-3 fade-in">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <strong class="me-3"><i class="bi bi-info-circle"></i> Legenda Piattaforme:</strong>
+                    <span class="me-3">
+                        <span class="platform-legend" style="background-color: #1877f2;"></span>
+                        Facebook
+                    </span>
+                    <span class="me-3">
+                        <span class="platform-legend" style="background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%);"></span>
+                        Instagram
+                    </span>
+                    <span class="me-3">
+                        <span class="platform-legend" style="background-color: #0077b5;"></span>
+                        LinkedIn
+                    </span>
+                    <span class="me-3">
+                        <span class="platform-legend" style="background-color: #000000;"></span>
+                        X/Twitter
+                    </span>
+                    <span class="me-3">
+                        <span class="platform-legend" style="background-color: #e60023;"></span>
+                        Pinterest
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Calendar -->
+    <div class="row fade-in">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    
+    // Events data from Flask
+    var events = {{ events|tojson|safe }};
+    
+    // Transform events for FullCalendar
+    var calendarEvents = events.map(function(event) {
+        // Determine color based on platforms
+        var color = '#00869f'; // Default teal
+        if (event.platforms.includes('facebook')) {
+            color = '#1877f2';
+        } else if (event.platforms.includes('instagram')) {
+            color = '#e6683c';
+        } else if (event.platforms.includes('linkedin')) {
+            color = '#0077b5';
+        } else if (event.platforms.includes('twitter')) {
+            color = '#000000';
+        } else if (event.platforms.includes('pinterest')) {
+            color = '#e60023';
+        }
+        
+        return {
+            id: event.id,
+            title: event.title,
+            start: event.start,
+            url: event.url,
+            backgroundColor: color,
+            borderColor: color,
+            extendedProps: {
+                platforms: event.platforms
+            }
+        };
+    });
+    
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'it',
+        firstDay: 1, // Monday
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        buttonText: {
+            today: 'Oggi',
+            month: 'Mese',
+            week: 'Settimana',
+            day: 'Giorno'
+        },
+        events: calendarEvents,
+        eventClick: function(info) {
+            info.jsEvent.preventDefault();
+            if (info.event.url) {
+                window.location.href = info.event.url;
+            }
+        },
+        eventDidMount: function(info) {
+            // Add platforms icons to event
+            var platforms = info.event.extendedProps.platforms;
+            var iconsHtml = '<div class="mt-1">';
+            platforms.forEach(function(platform) {
+                var iconClass = '';
+                switch(platform) {
+                    case 'facebook': iconClass = 'bi-facebook'; break;
+                    case 'instagram': iconClass = 'bi-instagram'; break;
+                    case 'linkedin': iconClass = 'bi-linkedin'; break;
+                    case 'twitter': iconClass = 'bi-twitter-x'; break;
+                    case 'pinterest': iconClass = 'bi-pinterest'; break;
+                }
+                iconsHtml += '<i class="bi ' + iconClass + ' me-1" style="font-size: 10px;"></i>';
+            });
+            iconsHtml += '</div>';
+            
+            info.el.querySelector('.fc-event-title').innerHTML += iconsHtml;
+        },
+        height: 'auto',
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        }
+    });
+    
+    calendar.render();
+});
+</script>
+{% endblock %}

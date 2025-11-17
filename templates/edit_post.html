@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block title %}Modifica Post{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Page Header -->
+            <div class="mb-4 fade-in">
+                <h1 class="display-6 fw-bold text-dark mb-2">
+                    <i class="bi bi-pencil-square text-primary"></i> Modifica Post
+                </h1>
+                <p class="text-muted">Aggiorna il post programmato</p>
+            </div>
+            
+            <form method="POST" class="fade-in">
+                <div class="row g-4">
+                    <!-- Contenuto Post -->
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="bi bi-pencil-square"></i> Contenuto del Post
+                            </div>
+                            <div class="card-body">
+                                <!-- Text Area -->
+                                <div class="mb-3">
+                                    <label for="content" class="form-label">Testo del Post *</label>
+                                    <textarea 
+                                        class="form-control" 
+                                        id="content" 
+                                        name="content" 
+                                        rows="10" 
+                                        required
+                                        oninput="updateCharCount()"
+                                    >{{ post.content }}</textarea>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <small class="text-muted">Supporta emoji, hashtag e link</small>
+                                        <small id="charCount" class="text-muted">{{ post.content|length }} caratteri</small>
+                                    </div>
+                                </div>
+                                
+                                <!-- Image Info -->
+                                {% if post.image_url %}
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="bi bi-image"></i> Immagine Allegata
+                                    </label>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <img src="{{ post.image_url }}" class="img-fluid rounded" style="max-height: 200px;">
+                                            <p class="text-muted mt-2 mb-0 small">Per cambiare l'immagine, crea un nuovo post</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Notes -->
+                                <div class="mb-3">
+                                    <label for="notes" class="form-label">
+                                        <i class="bi bi-sticky"></i> Note Personali
+                                    </label>
+                                    <textarea 
+                                        class="form-control" 
+                                        id="notes" 
+                                        name="notes" 
+                                        rows="2"
+                                    >{{ post.notes or '' }}</textarea>
+                                </div>
+                                
+                                <!-- Post Info -->
+                                <div class="alert alert-info">
+                                    <strong><i class="bi bi-info-circle"></i> Info Post</strong><br>
+                                    <small>
+                                        Status: <span class="badge bg-{{ post.status }}">{{ post.status }}</span><br>
+                                        Creato: {{ post.created_at.strftime('%d/%m/%Y %H:%M') }}<br>
+                                        {% if post.published_at %}
+                                        Pubblicato: {{ post.published_at.strftime('%d/%m/%Y %H:%M') }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sidebar: Settings -->
+                    <div class="col-lg-4">
+                        <!-- Piattaforme -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-share"></i> Piattaforme Social
+                            </div>
+                            <div class="card-body">
+                                {% set platforms_list = post.get_platforms_list() %}
+                                
+                                <div class="platform-checkbox">
+                                    <input type="checkbox" class="form-check-input me-2" id="platform_facebook" name="platforms" value="facebook" {% if 'facebook' in platforms_list %}checked{% endif %}>
+                                    <label class="form-check-label flex-grow-1" for="platform_facebook">
+                                        <span class="social-icon facebook"><i class="bi bi-facebook"></i></span>
+                                        Facebook
+                                    </label>
+                                </div>
+                                
+                                <div class="platform-checkbox">
+                                    <input type="checkbox" class="form-check-input me-2" id="platform_instagram" name="platforms" value="instagram" {% if 'instagram' in platforms_list %}checked{% endif %}>
+                                    <label class="form-check-label flex-grow-1" for="platform_instagram">
+                                        <span class="social-icon instagram"><i class="bi bi-instagram"></i></span>
+                                        Instagram
+                                    </label>
+                                </div>
+                                
+                                <div class="platform-checkbox">
+                                    <input type="checkbox" class="form-check-input me-2" id="platform_linkedin" name="platforms" value="linkedin" {% if 'linkedin' in platforms_list %}checked{% endif %}>
+                                    <label class="form-check-label flex-grow-1" for="platform_linkedin">
+                                        <span class="social-icon linkedin"><i class="bi bi-linkedin"></i></span>
+                                        LinkedIn
+                                    </label>
+                                </div>
+                                
+                                <div class="platform-checkbox">
+                                    <input type="checkbox" class="form-check-input me-2" id="platform_twitter" name="platforms" value="twitter" {% if 'twitter' in platforms_list %}checked{% endif %}>
+                                    <label class="form-check-label flex-grow-1" for="platform_twitter">
+                                        <span class="social-icon twitter"><i class="bi bi-twitter-x"></i></span>
+                                        X/Twitter
+                                    </label>
+                                </div>
+                                
+                                <div class="platform-checkbox">
+                                    <input type="checkbox" class="form-check-input me-2" id="platform_pinterest" name="platforms" value="pinterest" {% if 'pinterest' in platforms_list %}checked{% endif %}>
+                                    <label class="form-check-label flex-grow-1" for="platform_pinterest">
+                                        <span class="social-icon pinterest"><i class="bi bi-pinterest"></i></span>
+                                        Pinterest
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Scheduling -->
+                        {% if post.status == 'scheduled' %}
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-calendar3"></i> Programmazione
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="scheduled_date" class="form-label">Data *</label>
+                                    <input 
+                                        type="date" 
+                                        class="form-control" 
+                                        id="scheduled_date" 
+                                        name="scheduled_date" 
+                                        required
+                                        value="{{ post.scheduled_date.strftime('%Y-%m-%d') }}"
+                                    >
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="scheduled_time" class="form-label">Ora *</label>
+                                    <input 
+                                        type="time" 
+                                        class="form-control" 
+                                        id="scheduled_time" 
+                                        name="scheduled_time" 
+                                        required
+                                        value="{{ post.scheduled_date.strftime('%H:%M') }}"
+                                    >
+                                    <small class="text-muted">Fuso orario: Europe/Rome (CET)</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="card mb-3">
+                            <div class="card-body text-center">
+                                <i class="bi bi-lock display-4 text-muted"></i>
+                                <p class="text-muted mt-2 mb-0">Post già pubblicato, scheduling non modificabile</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Actions -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <button type="submit" class="btn btn-primary w-100 mb-2">
+                                    <i class="bi bi-check-circle"></i> Salva Modifiche
+                                </button>
+                                <a href="/" class="btn btn-outline-secondary w-100 mb-2">
+                                    <i class="bi bi-x-circle"></i> Annulla
+                                </a>
+                                {% if post.status == 'scheduled' %}
+                                <button type="button" class="btn btn-success w-100 mb-2" onclick="publishNow()">
+                                    <i class="bi bi-send"></i> Pubblica Ora
+                                </button>
+                                {% endif %}
+                                <button type="button" class="btn btn-danger w-100" onclick="deletePost()">
+                                    <i class="bi bi-trash"></i> Elimina Post
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Character counter
+function updateCharCount() {
+    const content = document.getElementById('content').value;
+    document.getElementById('charCount').textContent = content.length + ' caratteri';
+}
+
+// Publish now
+function publishNow() {
+    if (confirm('Vuoi pubblicare questo post immediatamente?')) {
+        fetch('/publish-now/{{ post.id }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Post pubblicato con successo!');
+                window.location.href = '/';
+            } else {
+                alert('Errore: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Errore di connessione');
+            console.error('Error:', error);
+        });
+    }
+}
+
+// Delete post
+function deletePost() {
+    if (confirm('Sei sicuro di voler eliminare questo post? Questa azione non può essere annullata.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/post/{{ post.id }}/delete';
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Initialize char count
+document.addEventListener('DOMContentLoaded', function() {
+    updateCharCount();
+});
+</script>
+{% endblock %}

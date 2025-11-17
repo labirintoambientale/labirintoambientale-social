@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4 fade-in">
+        <div class="col-12">
+            <h1 class="display-5 fw-bold text-dark mb-2">
+                <i class="bi bi-speedometer2 text-success"></i> Dashboard
+            </h1>
+            <p class="text-muted">Panoramica e gestione post social media</p>
+        </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card fade-in" style="animation-delay: 0.1s; border-left-color: #2196f3;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 style="color: #2196f3;">{{ total_posts }}</h3>
+                        <p>Post Totali</p>
+                    </div>
+                    <i class="bi bi-file-post" style="color: #2196f3;"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card fade-in" style="animation-delay: 0.2s; border-left-color: #ff9800;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 style="color: #ff9800;">{{ scheduled_posts }}</h3>
+                        <p>Programmati</p>
+                    </div>
+                    <i class="bi bi-clock-history" style="color: #ff9800;"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card fade-in" style="animation-delay: 0.3s; border-left-color: #4caf50;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 style="color: #4caf50;">{{ published_posts }}</h3>
+                        <p>Pubblicati</p>
+                    </div>
+                    <i class="bi bi-check-circle" style="color: #4caf50;"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card fade-in" style="animation-delay: 0.4s; border-left-color: #f44336;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 style="color: #f44336;">{{ failed_posts }}</h3>
+                        <p>Falliti</p>
+                    </div>
+                    <i class="bi bi-exclamation-triangle" style="color: #f44336;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card fade-in" style="animation-delay: 0.5s;">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-3">
+                        <i class="bi bi-lightning-charge"></i> Azioni Rapide
+                    </h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="/post/create" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Crea Nuovo Post
+                        </a>
+                        <a href="/calendar" class="btn btn-outline-primary">
+                            <i class="bi bi-calendar3"></i> Visualizza Calendario
+                        </a>
+                        <a href="/posts?status=scheduled" class="btn btn-outline-warning">
+                            <i class="bi bi-clock"></i> Post Programmati
+                        </a>
+                        <a href="/templates" class="btn btn-outline-success">
+                            <i class="bi bi-file-text"></i> Usa Template
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content Row -->
+    <div class="row g-4">
+        <!-- Prossimi Post Programmati -->
+        <div class="col-lg-6">
+            <div class="card fade-in" style="animation-delay: 0.6s;">
+                <div class="card-header">
+                    <i class="bi bi-calendar-event"></i> Prossimi Post Programmati
+                </div>
+                <div class="card-body">
+                    {% if upcoming_posts %}
+                        <div class="list-group list-group-flush">
+                            {% for post in upcoming_posts %}
+                                <div class="list-group-item px-0 border-0 border-bottom">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="mb-1 fw-semibold">
+                                            {{ post.scheduled_date.strftime('%d/%m/%Y %H:%M') }}
+                                        </h6>
+                                        <span class="badge bg-scheduled">
+                                            <i class="bi bi-clock"></i> Programmato
+                                        </span>
+                                    </div>
+                                    <p class="mb-2 text-muted small">
+                                        {{ post.content[:100] }}{% if post.content|length > 100 %}...{% endif %}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="social-icons">
+                                            {% for platform in post.get_platforms_list() %}
+                                                <span class="social-icon {{ platform }}" title="{{ platform }}">
+                                                    <i class="bi bi-{% if platform == 'facebook' %}facebook{% elif platform == 'instagram' %}instagram{% elif platform == 'linkedin' %}linkedin{% elif platform == 'twitter' %}twitter-x{% elif platform == 'pinterest' %}pinterest{% endif %}"></i>
+                                                </span>
+                                            {% endfor %}
+                                        </div>
+                                        <div>
+                                            <a href="/post/{{ post.id }}/edit" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-pencil"></i> Modifica
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if scheduled_posts > 10 %}
+                            <div class="text-center mt-3">
+                                <a href="/posts?status=scheduled" class="btn btn-sm btn-link">
+                                    Vedi tutti i {{ scheduled_posts }} post programmati
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-calendar-x display-1 text-muted opacity-25"></i>
+                            <p class="text-muted mt-3">Nessun post programmato</p>
+                            <a href="/post/create" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Crea il primo post
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ultimi Post Pubblicati -->
+        <div class="col-lg-6">
+            <div class="card fade-in" style="animation-delay: 0.7s;">
+                <div class="card-header">
+                    <i class="bi bi-check-circle"></i> Ultimi Post Pubblicati
+                </div>
+                <div class="card-body">
+                    {% if recent_posts %}
+                        <div class="list-group list-group-flush">
+                            {% for post in recent_posts %}
+                                <div class="list-group-item px-0 border-0 border-bottom">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="mb-1 fw-semibold text-success">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            {{ post.published_at.strftime('%d/%m/%Y %H:%M') }}
+                                        </h6>
+                                        <span class="badge bg-published">Pubblicato</span>
+                                    </div>
+                                    <p class="mb-2 text-muted small">
+                                        {{ post.content[:100] }}{% if post.content|length > 100 %}...{% endif %}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="social-icons">
+                                            {% for platform in post.get_platforms_list() %}
+                                                <span class="social-icon {{ platform }}" title="{{ platform }}">
+                                                    <i class="bi bi-{% if platform == 'facebook' %}facebook{% elif platform == 'instagram' %}instagram{% elif platform == 'linkedin' %}linkedin{% elif platform == 'twitter' %}twitter-x{% elif platform == 'pinterest' %}pinterest{% endif %}"></i>
+                                                </span>
+                                            {% endfor %}
+                                        </div>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="viewPostDetails({{ post.id }})">
+                                                <i class="bi bi-eye"></i> Dettagli
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if published_posts > 10 %}
+                            <div class="text-center mt-3">
+                                <a href="/posts?status=published" class="btn btn-sm btn-link">
+                                    Vedi tutti i {{ published_posts }} post pubblicati
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox display-1 text-muted opacity-25"></i>
+                            <p class="text-muted mt-3">Nessun post pubblicato ancora</p>
+                            <small class="text-muted">I post verranno pubblicati automaticamente alle ore programmate</small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewPostDetails(postId) {
+    // Apri modal con dettagli post o redirect
+    window.location.href = '/post/' + postId + '/edit';
+}
+</script>
+{% endblock %}

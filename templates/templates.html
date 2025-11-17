@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Template{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="row mb-4 fade-in">
+        <div class="col-12">
+            <h1 class="display-6 fw-bold text-dark mb-2">
+                <i class="bi bi-file-text text-primary"></i> Template Post
+            </h1>
+            <p class="text-muted">Template predefiniti per creare post rapidamente</p>
+        </div>
+    </div>
+    
+    <!-- Config Templates -->
+    <div class="row g-4">
+        {% for template_key, template_data in config_templates.items() %}
+        <div class="col-md-6 col-lg-4 fade-in" style="animation-delay: {{ loop.index * 0.1 }}s;">
+            <div class="card h-100">
+                <div class="card-header bg-gradient">
+                    <h5 class="mb-0">
+                        <i class="bi bi-file-earmark-text"></i> {{ template_data.title }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Template Preview -->
+                    <div class="bg-light p-3 rounded mb-3" style="max-height: 200px; overflow-y: auto;">
+                        <small class="text-muted" style="white-space: pre-line; font-family: monospace;">{{ template_data.content[:200] }}{% if template_data.content|length > 200 %}...{% endif %}</small>
+                    </div>
+                    
+                    <!-- Platforms -->
+                    <div class="mb-3">
+                        <strong class="d-block mb-2"><i class="bi bi-share"></i> Piattaforme Suggerite:</strong>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for platform in template_data.platforms %}
+                            <span class="social-icon {{ platform }}" title="{{ platform }}">
+                                <i class="bi bi-{% if platform == 'facebook' %}facebook{% elif platform == 'instagram' %}instagram{% elif platform == 'linkedin' %}linkedin{% elif platform == 'twitter' %}twitter-x{% elif platform == 'pinterest' %}pinterest{% endif %}"></i>
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Usage Count -->
+                    <div class="text-muted mb-3">
+                        <small>
+                            <i class="bi bi-graph-up"></i> Usato per settore rifiuti/ambiente
+                        </small>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <a href="/post/create?template={{ template_key }}" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-circle"></i> Usa Template
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Info Box -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-primary fade-in">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-lightbulb text-primary"></i> Come Funzionano i Template
+                    </h5>
+                    <p class="card-text">
+                        I template sono modelli predefiniti specifici per <strong>labirintoambientale.it</strong> nel settore gestione rifiuti e consulenza ambientale.
+                    </p>
+                    <ul>
+                        <li><strong>Nuovo Impianto Rifiuti:</strong> Annuncia impianti aggiunti al database con dettagli CER</li>
+                        <li><strong>Aggiornamento Normativo:</strong> Comunica nuove normative ambientali D.Lgs 152/2006</li>
+                        <li><strong>Consiglio Settimanale:</strong> Tips pratici per gestione rifiuti e sostenibilità</li>
+                        <li><strong>Focus Codice CER:</strong> Approfondimenti su codici CER specifici</li>
+                        <li><strong>ISO 14001:</strong> Contenuti su Sistema di Gestione Ambientale</li>
+                    </ul>
+                    <p class="mb-0">
+                        <i class="bi bi-info-circle"></i> 
+                        Ogni template include variabili personalizzabili e hashtag strategici per massimizzare l'engagement.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Examples Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h3 class="mb-3"><i class="bi bi-stars"></i> Esempi di Utilizzo</h3>
+        </div>
+        
+        <div class="col-md-6 fade-in">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <i class="bi bi-check-circle"></i> Esempio: Nuovo Impianto
+                </div>
+                <div class="card-body">
+                    <div class="bg-light p-3 rounded">
+                        <p class="mb-0" style="white-space: pre-line; font-size: 0.9rem;">🏭 Nuovo impianto nel database labirintoambientale.it!
+
+📍 Eco Smaltimenti Spa - Milano, Lombardia
+♻️ Specializzato in: Rifiuti speciali pericolosi
+📋 Codici CER autorizzati: 150110, 150111, 170503
+
+Scopri tutti i dettagli → labirintoambientale.it
+
+#rifiuti #gestionerifiuti #lombardia #economiacircolare</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 fade-in">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <i class="bi bi-check-circle"></i> Esempio: Codice CER
+                </div>
+                <div class="card-body">
+                    <div class="bg-light p-3 rounded">
+                        <p class="mb-0" style="white-space: pre-line; font-size: 0.9rem;">📋 Codice CER 150110
+
+📝 Descrizione: Imballaggi contenenti residui di sostanze pericolose
+⚠️ Classificazione: Rifiuto Pericoloso
+♻️ Modalità smaltimento: Impianti autorizzati R13/D15
+
+Trova impianti autorizzati su labirintoambientale.it
+
+#CER #classificazionerifiuti #normativa</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

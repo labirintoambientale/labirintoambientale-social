@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Tutti i Post{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4 fade-in">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-6 fw-bold text-dark mb-2">
+                        <i class="bi bi-list-ul text-primary"></i> Tutti i Post
+                    </h1>
+                    <p class="text-muted">Gestisci e visualizza tutti i post social</p>
+                </div>
+                <div>
+                    <a href="/post/create" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Nuovo Post
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="row mb-4 fade-in">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="btn-group" role="group">
+                        <a href="/posts?status=all" class="btn btn-outline-primary {% if status_filter == 'all' %}active{% endif %}">
+                            <i class="bi bi-grid"></i> Tutti
+                        </a>
+                        <a href="/posts?status=scheduled" class="btn btn-outline-warning {% if status_filter == 'scheduled' %}active{% endif %}">
+                            <i class="bi bi-clock"></i> Programmati
+                        </a>
+                        <a href="/posts?status=published" class="btn btn-outline-success {% if status_filter == 'published' %}active{% endif %}">
+                            <i class="bi bi-check-circle"></i> Pubblicati
+                        </a>
+                        <a href="/posts?status=failed" class="btn btn-outline-danger {% if status_filter == 'failed' %}active{% endif %}">
+                            <i class="bi bi-exclamation-triangle"></i> Falliti
+                        </a>
+                        <a href="/posts?status=draft" class="btn btn-outline-secondary {% if status_filter == 'draft' %}active{% endif %}">
+                            <i class="bi bi-file-earmark"></i> Bozze
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Posts List -->
+    <div class="row">
+        <div class="col-12">
+            {% if posts %}
+            <div class="card fade-in">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th width="50">ID</th>
+                                    <th>Contenuto</th>
+                                    <th width="150">Piattaforme</th>
+                                    <th width="180">Data Programmata</th>
+                                    <th width="120">Status</th>
+                                    <th width="150">Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for post in posts %}
+                                <tr>
+                                    <td class="align-middle">
+                                        <strong>#{{ post.id }}</strong>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="d-flex align-items-start">
+                                            {% if post.image_url %}
+                                            <img src="{{ post.image_url }}" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                            {% endif %}
+                                            <div>
+                                                <p class="mb-1">{{ post.content[:100] }}{% if post.content|length > 100 %}...{% endif %}</p>
+                                                {% if post.notes %}
+                                                <small class="text-muted">
+                                                    <i class="bi bi-sticky"></i> {{ post.notes[:50] }}
+                                                </small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="d-flex flex-wrap gap-1">
+                                            {% for platform in post.get_platforms_list() %}
+                                            <span class="social-icon {{ platform }}" title="{{ platform }}">
+                                                <i class="bi bi-{% if platform == 'facebook' %}facebook{% elif platform == 'instagram' %}instagram{% elif platform == 'linkedin' %}linkedin{% elif platform == 'twitter' %}twitter-x{% elif platform == 'pinterest' %}pinterest{% endif %}"></i>
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <small>
+                                            <i class="bi bi-calendar3"></i>
+                                            {{ post.scheduled_date.strftime('%d/%m/%Y') }}<br>
+                                            <i class="bi bi-clock"></i>
+                                            {{ post.scheduled_date.strftime('%H:%M') }}
+                                        </small>
+                                    </td>
+                                    <td class="align-middle">
+                                        {% if post.status == 'scheduled' %}
+                                        <span class="badge bg-warning">
+                                            <i class="bi bi-clock"></i> Programmato
+                                        </span>
+                                        {% elif post.status == 'published' %}
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle"></i> Pubblicato
+                                        </span>
+                                        {% elif post.status == 'failed' %}
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-x-circle"></i> Fallito
+                                        </span>
+                                        {% elif post.status == 'draft' %}
+                                        <span class="badge bg-secondary">
+                                            <i class="bi bi-file-earmark"></i> Bozza
+                                        </span>
+                                        {% endif %}
+                                        
+                                        {% if post.published_at %}
+                                        <br><small class="text-muted">{{ post.published_at.strftime('%d/%m %H:%M') }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="/post/{{ post.id }}/edit" class="btn btn-outline-primary" title="Modifica">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            {% if post.status == 'scheduled' %}
+                                            <button class="btn btn-outline-success" onclick="publishNow({{ post.id }})" title="Pubblica ora">
+                                                <i class="bi bi-send"></i>
+                                            </button>
+                                            {% endif %}
+                                            <button class="btn btn-outline-danger" onclick="deletePost({{ post.id }})" title="Elimina">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pagination Info -->
+            <div class="mt-3 text-center">
+                <p class="text-muted">
+                    Totale: <strong>{{ posts|length }}</strong> post
+                </p>
+            </div>
+            
+            {% else %}
+            <!-- Empty State -->
+            <div class="card fade-in">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-inbox display-1 text-muted opacity-25"></i>
+                    <h4 class="mt-3">Nessun post trovato</h4>
+                    <p class="text-muted">
+                        {% if status_filter != 'all' %}
+                        Non ci sono post con status "{{ status_filter }}"
+                        {% else %}
+                        Non hai ancora creato nessun post
+                        {% endif %}
+                    </p>
+                    <a href="/post/create" class="btn btn-primary mt-2">
+                        <i class="bi bi-plus-circle"></i> Crea il primo post
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Publish now
+function publishNow(postId) {
+    if (confirm('Vuoi pubblicare questo post immediatamente?')) {
+        fetch('/publish-now/' + postId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Post pubblicato con successo!');
+                location.reload();
+            } else {
+                alert('Errore: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Errore di connessione');
+            console.error('Error:', error);
+        });
+    }
+}
+
+// Delete post
+function deletePost(postId) {
+    if (confirm('Sei sicuro di voler eliminare questo post? Questa azione non può essere annullata.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/post/' + postId + '/delete';
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

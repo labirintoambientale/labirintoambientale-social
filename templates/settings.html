@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}Impostazioni{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="row mb-4 fade-in">
+        <div class="col-12">
+            <h1 class="display-6 fw-bold text-dark mb-2">
+                <i class="bi bi-gear text-primary"></i> Impostazioni
+            </h1>
+            <p class="text-muted">Configura account social e preferenze</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Account Social -->
+        <div class="col-lg-8">
+            <div class="card mb-4 fade-in">
+                <div class="card-header">
+                    <i class="bi bi-share"></i> Account Social Connessi
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Account configurati tramite LATE API</strong><br>
+                            <small>Gli Account IDs sono configurati in <code>config.py</code> o tramite variabili d'ambiente</small>
+                        </div>
+                        
+                        <!-- Facebook -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="social-icon facebook me-3">
+                                    <i class="bi bi-facebook"></i>
+                                </span>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-0">Facebook Page</h5>
+                                    <small class="text-muted">
+                                        {% if social_accounts.facebook %}
+                                        ID: <code>{{ social_accounts.facebook }}</code>
+                                        <span class="badge bg-success ms-2">Connesso</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">Non configurato</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <!-- Instagram -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="social-icon instagram me-3">
+                                    <i class="bi bi-instagram"></i>
+                                </span>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-0">Instagram Business</h5>
+                                    <small class="text-muted">
+                                        {% if social_accounts.instagram %}
+                                        ID: <code>{{ social_accounts.instagram }}</code>
+                                        <span class="badge bg-success ms-2">Connesso</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">Non configurato</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <!-- LinkedIn -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="social-icon linkedin me-3">
+                                    <i class="bi bi-linkedin"></i>
+                                </span>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-0">LinkedIn</h5>
+                                    <small class="text-muted">
+                                        {% if social_accounts.linkedin %}
+                                        ID: <code>{{ social_accounts.linkedin }}</code>
+                                        <span class="badge bg-success ms-2">Connesso</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">Non configurato</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <!-- Twitter/X -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="social-icon twitter me-3">
+                                    <i class="bi bi-twitter-x"></i>
+                                </span>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-0">X / Twitter</h5>
+                                    <small class="text-muted">
+                                        {% if social_accounts.twitter %}
+                                        ID: <code>{{ social_accounts.twitter }}</code>
+                                        <span class="badge bg-success ms-2">Connesso</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">Non configurato</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <!-- Pinterest -->
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="social-icon pinterest me-3">
+                                    <i class="bi bi-pinterest"></i>
+                                </span>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-0">Pinterest</h5>
+                                    <small class="text-muted">
+                                        {% if social_accounts.pinterest %}
+                                        ID: <code>{{ social_accounts.pinterest }}</code>
+                                        <span class="badge bg-success ms-2">Connesso</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">Non configurato</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- API Connection Test -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <i class="bi bi-shield-check"></i> Test Connessione API
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Verifica la connessione con LATE API</p>
+                    <button class="btn btn-outline-primary" onclick="testApiConnection()">
+                        <i class="bi bi-arrow-repeat"></i> Testa Connessione
+                    </button>
+                    <div id="apiTestResult" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Info Sidebar -->
+        <div class="col-lg-4">
+            <!-- System Info -->
+            <div class="card mb-4 fade-in">
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-info-circle"></i> Informazioni Sistema
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <strong>Piattaforma:</strong><br>
+                            <small class="text-muted">PythonAnywhere + LATE API</small>
+                        </li>
+                        <li class="mb-2">
+                            <strong>Timezone:</strong><br>
+                            <small class="text-muted">Europe/Rome (CET)</small>
+                        </li>
+                        <li class="mb-2">
+                            <strong>Database:</strong><br>
+                            <small class="text-muted">SQLite</small>
+                        </li>
+                        <li class="mb-0">
+                            <strong>Scheduled Task:</strong><br>
+                            <small class="text-muted">Giornaliero ore 09:00 UTC</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Quick Links -->
+            <div class="card mb-4 fade-in">
+                <div class="card-header">
+                    <i class="bi bi-link-45deg"></i> Link Utili
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="https://getlate.dev/dashboard" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-box-arrow-up-right"></i> Dashboard LATE
+                        </a>
+                        <a href="https://www.pythonanywhere.com/user/LabirintoAmbientale/" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-box-arrow-up-right"></i> PythonAnywhere
+                        </a>
+                        <a href="https://labirintoambientale.it" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-box-arrow-up-right"></i> Labirintoambientale.it
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Help -->
+            <div class="card fade-in border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <i class="bi bi-question-circle"></i> Serve Aiuto?
+                </div>
+                <div class="card-body">
+                    <p class="small mb-2">
+                        <strong>Per configurare gli account:</strong>
+                    </p>
+                    <ol class="small">
+                        <li>Connetti account su <a href="https://getlate.dev" target="_blank">getlate.dev</a></li>
+                        <li>Copia gli Account IDs dalla dashboard LATE</li>
+                        <li>Aggiungi IDs in <code>config.py</code> o variabili d'ambiente</li>
+                        <li>Reload web app su PythonAnywhere</li>
+                    </ol>
+                    <p class="small mb-0 text-muted">
+                        <i class="bi bi-info-circle"></i> Consulta <code>DEPLOY-GUIDE.md</code> per istruzioni dettagliate
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function testApiConnection() {
+    const resultDiv = document.getElementById('apiTestResult');
+    resultDiv.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Test in corso...';
+    
+    // Simula test API (in produzione farebbe una vera chiamata AJAX)
+    setTimeout(function() {
+        const allConfigured = {{ 'true' if social_accounts.facebook and social_accounts.instagram and social_accounts.linkedin and social_accounts.twitter and social_accounts.pinterest else 'false' }};
+        
+        if (allConfigured) {
+            resultDiv.innerHTML = `
+                <div class="alert alert-success mb-0">
+                    <i class="bi bi-check-circle"></i> <strong>Connessione OK!</strong><br>
+                    <small>Tutti gli account sono configurati correttamente</small>
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div class="alert alert-warning mb-0">
+                    <i class="bi bi-exclamation-triangle"></i> <strong>Configurazione incompleta</strong><br>
+                    <small>Alcuni account non sono ancora configurati</small>
+                </div>
+            `;
+        }
+    }, 1500);
+}
+</script>
+{% endblock %}

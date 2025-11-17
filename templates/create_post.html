@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}Crea Nuovo Post{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Page Header -->
+            <div class="mb-4 fade-in">
+                <h1 class="display-6 fw-bold text-dark mb-2">
+                    <i class="bi bi-plus-circle text-success"></i> Crea Nuovo Post
+                </h1>
+                <p class="text-muted">Programma un post per i tuoi canali social</p>
+            </div>
+            
+            <form method="POST" enctype="multipart/form-data" class="fade-in">
+                <div class="row g-4">
+                    <!-- Contenuto Post -->
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="bi bi-pencil-square"></i> Contenuto del Post
+                            </div>
+                            <div class="card-body">
+                                <!-- Template Selection -->
+                                <div class="mb-4">
+                                    <label class="form-label">
+                                        <i class="bi bi-file-text"></i> Usa Template Predefinito
+                                    </label>
+                                    <select class="form-select" id="templateSelect" onchange="loadTemplate()">
+                                        <option value="">-- Scrivi manualmente --</option>
+                                        {% for template_key, template_data in post_templates.items() %}
+                                            <option value="{{ template_key }}">{{ template_data.title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="text-muted">Seleziona un template per popolare automaticamente il contenuto</small>
+                                </div>
+                                
+                                <!-- Text Area -->
+                                <div class="mb-3">
+                                    <label for="content" class="form-label">Testo del Post *</label>
+                                    <textarea 
+                                        class="form-control" 
+                                        id="content" 
+                                        name="content" 
+                                        rows="10" 
+                                        required
+                                        placeholder="Scrivi qui il testo del tuo post...&#10;&#10;Puoi usare emoji 🌱, hashtag #ambiente e link"
+                                        oninput="updateCharCount()"
+                                    ></textarea>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <small class="text-muted">Supporta emoji, hashtag e link</small>
+                                        <small id="charCount" class="text-muted">0 caratteri</small>
+                                    </div>
+                                </div>
+                                
+                                <!-- Image Upload -->
+                                <div class="mb-3">
+                                    <label for="image" class="form-label">
+                                        <i class="bi bi-image"></i> Immagine (opzionale)
+                                    </label>
+                                    <input 
+                                        type="file" 
+                                        class="form-control" 
+                                        id="image" 
+                                        name="image" 
+                                        accept="image/*"
+                                        onchange="previewImage(this)"
+                                    >
+                                    <small class="text-muted">Formati supportati: JPG, PNG, GIF (max 16MB)</small>
+                                    <div id="imagePreview" class="mt-3" style="display: none;">
+                                        <img id="preview" src="" class="img-fluid rounded" style="max-height: 300px;">
+                                    </div>
+                                </div>
+                                
+                                <!-- Notes -->
+                                <div class="mb-3">
+                                    <label for="notes" class="form-label">
+                                        <i class="bi bi-sticky"></i> Note Personali (non pubblicate)
+                                    </label>
+                                    <textarea 
+                                        class="form-control" 
+                                        id="notes" 
+                                        name="notes" 
+                                        rows="2"
+                                        placeholder="Aggiungi note private che solo tu vedrai..."
+                                    ></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sidebar: Settings -->
+                    <div class="col-lg-4">
+                        <!-- Piattaforme -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-share"></i> Piattaforme Social
+                            </div>
+                            <div class="card-body">
+                                <div class="platform-checkbox">
+                                    <input type="checkbox" class="form-check-input me-2" id="platform_facebook" name="platforms" value="facebook" checked>
+                                    <label class="form-check-label flex-grow-1" for="platform_facebook">
+                                        <span class="social-icon facebook"><i class="bi bi-facebook"></i></span>
+                                        Facebook
+                                    </label>
+                                </div>
+                                
+                                <div class="platform-checkbox">
+                                    <input type="checkbox" class="form-check-input me-2" id="platform_instagram" name="platforms" value="instagram" checked>
+                                    <label class="form-check-label flex-grow-1" for="platform_instagram">
+                                        <span class="social-icon instagram"><i class="bi bi-instagram"></i></span>
+                                        Instagram
+                                    </label>
+                                </div>
+                                
+                                <div class="platform-checkbox">
+                                    <input type="checkbox" class="form-check-input me-2" id="platform_linkedin" name="platforms" value="linkedin" checked>
+                                    <label class="form-check-label flex-grow-1" for="platform_linkedin">
+                                        <span class="social-icon linkedin"><i class="bi bi-linkedin"></i></span>
+                                        LinkedIn
+                                    </label>
+                                </div>
+                                
+                                <div class="platform-checkbox">
+                                    <input type="checkbox" class="form-check-input me-2" id="platform_twitter" name="platforms" value="twitter" checked>
+                                    <label class="form-check-label flex-grow-1" for="platform_twitter">
+                                        <span class="social-icon twitter"><i class="bi bi-twitter-x"></i></span>
+                                        X/Twitter
+                                    </label>
+                                </div>
+                                
+                                <div class="platform-checkbox">
+                                    <input type="checkbox" class="form-check-input me-2" id="platform_pinterest" name="platforms" value="pinterest">
+                                    <label class="form-check-label flex-grow-1" for="platform_pinterest">
+                                        <span class="social-icon pinterest"><i class="bi bi-pinterest"></i></span>
+                                        Pinterest
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Scheduling -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-calendar3"></i> Programmazione
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="scheduled_date" class="form-label">Data *</label>
+                                    <input 
+                                        type="date" 
+                                        class="form-control" 
+                                        id="scheduled_date" 
+                                        name="scheduled_date" 
+                                        required
+                                        min="{{ now.strftime('%Y-%m-%d') }}"
+                                    >
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="scheduled_time" class="form-label">Ora *</label>
+                                    <input 
+                                        type="time" 
+                                        class="form-control" 
+                                        id="scheduled_time" 
+                                        name="scheduled_time" 
+                                        required
+                                        value="10:00"
+                                    >
+                                    <small class="text-muted">Fuso orario: Europe/Rome (CET)</small>
+                                </div>
+                                
+                                <!-- Quick Time Buttons -->
+                                <div class="mb-3">
+                                    <label class="form-label">Orari Suggeriti</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setTime('09:00')">09:00</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setTime('12:00')">12:00</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setTime('15:00')">15:00</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setTime('18:00')">18:00</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pinterest Config (show if Pinterest selected) -->
+                        <div class="card mb-3" id="pinterestConfig" style="display: none;">
+                            <div class="card-header bg-danger text-white">
+                                <i class="bi bi-pinterest"></i> Configurazione Pinterest
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="pinterest_link" class="form-label">Link Destinazione</label>
+                                    <input 
+                                        type="url" 
+                                        class="form-control" 
+                                        id="pinterest_link" 
+                                        name="pinterest_link" 
+                                        placeholder="https://labirintoambientale.it"
+                                        value="https://labirintoambientale.it"
+                                    >
+                                    <small class="text-muted">URL dove porta il Pin</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="card">
+                            <div class="card-body">
+                                <button type="submit" class="btn btn-primary w-100 mb-2">
+                                    <i class="bi bi-calendar-check"></i> Programma Post
+                                </button>
+                                <a href="/" class="btn btn-outline-secondary w-100">
+                                    <i class="bi bi-x-circle"></i> Annulla
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Character counter
+function updateCharCount() {
+    const content = document.getElementById('content').value;
+    document.getElementById('charCount').textContent = content.length + ' caratteri';
+}
+
+// Image preview
+function previewImage(input) {
+    const preview = document.getElementById('imagePreview');
+    const img = document.getElementById('preview');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            img.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Set time helper
+function setTime(time) {
+    document.getElementById('scheduled_time').value = time;
+}
+
+// Show/hide Pinterest config
+document.getElementById('platform_pinterest').addEventListener('change', function() {
+    document.getElementById('pinterestConfig').style.display = this.checked ? 'block' : 'none';
+});
+
+// Load template
+async function loadTemplate() {
+    const select = document.getElementById('templateSelect');
+    const templateKey = select.value;
+    
+    if (!templateKey) return;
+    
+    try {
+        const response = await fetch(`/api/template/${templateKey}`);
+        const template = await response.json();
+        
+        if (template.content) {
+            document.getElementById('content').value = template.content;
+            updateCharCount();
+            
+            // Check suggested platforms
+            if (template.platforms) {
+                document.querySelectorAll('input[name="platforms"]').forEach(cb => {
+                    cb.checked = template.platforms.includes(cb.value);
+                });
+                
+                // Trigger Pinterest config visibility
+                document.getElementById('pinterestConfig').style.display = 
+                    template.platforms.includes('pinterest') ? 'block' : 'none';
+            }
+        }
+    } catch (error) {
+        console.error('Error loading template:', error);
+    }
+}
+
+// Set today as default date
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('scheduled_date').value = today;
+});
+</script>
+{% endblock %}
