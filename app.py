@@ -245,13 +245,14 @@ def settings():
 
 @app.route('/api/template/<template_name>')
 def get_template(template_name):
-nano app.py    """API per recuperare contenuto template"""
+    """API per recuperare contenuto template"""
     templates = app.config['POST_TEMPLATES']
     
     if template_name in templates:
         return jsonify(templates[template_name])
     
     return jsonify({'error': 'Template non trovato'}), 404
+
 
 @app.route('/publish-now/<int:post_id>', methods=['POST'])
 def publish_now(post_id):
