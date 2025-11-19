@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Flask Application principale - Social Media Scheduler
+nano app.pyFlask Application principale - Social Media Scheduler
 Labirintoambientale.it
 """
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
@@ -245,7 +245,7 @@ def settings():
 
 @app.route('/api/template/<template_name>')
 def get_template(template_name):
-    """API per recuperare contenuto template"""
+nano app.py    """API per recuperare contenuto template"""
     templates = app.config['POST_TEMPLATES']
     
     if template_name in templates:
@@ -278,4 +278,4 @@ with app.app_context():
     print("✅ Database inizializzato")
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
