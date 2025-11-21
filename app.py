@@ -146,7 +146,7 @@ def create_post():
     return render_template('create_post.html', 
                          templates=templates,
                          post_templates=app.config['POST_TEMPLATES'])
-
+                         now=datetime.now())
 @app.route('/post/<int:post_id>/edit', methods=['GET', 'POST'])
 def edit_post(post_id):
     """Modifica post esistente"""
